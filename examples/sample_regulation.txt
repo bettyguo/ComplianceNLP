@@ -1,0 +1,15 @@
+Article 25(2) of Directive 2014/65/EU (MiFID II)
+
+When providing investment advice or portfolio management, the investment firm
+shall obtain the necessary information regarding the client's or potential
+client's knowledge and experience in the investment field relevant to the
+specific type of product or service, that person's financial situation
+including his ability to bear losses, and his investment objectives
+including his risk tolerance so as to enable the investment firm to
+recommend to the client or potential client the investment services and
+financial instruments that are suitable for him and, in particular, are
+in accordance with his risk tolerance and ability to bear losses.
+
+Cross-references:
+- Delegated Regulation (EU) 2017/565, Articles 54-56
+- MiFID II Article 25(3)

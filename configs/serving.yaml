@@ -1,0 +1,31 @@
+# Production serving configuration
+server:
+  host: "0.0.0.0"
+  port: 8080
+  workers: 1
+  max_batch_size: 32
+  max_sequence_length: 512
+  model_warmup: true
+  cors_enabled: true
+
+models:
+  extraction_model: "outputs/extraction_model/best_model"
+  gap_model: "outputs/medusa_model"
+  dense_encoder: "all-MiniLM-L6-v2"
+  grounding_model: "lytang/MiniCheck-DeBERTa-v3-large"
+
+monitoring:
+  prometheus_enabled: true
+  log_level: "INFO"
+  confidence_alert_threshold: 0.62  # 2σ below rolling mean
+  embedding_drift_enabled: true
+
+deployment:
+  gpu_memory_budget: "80GB"
+  instance_type: "AWS p4d.24xlarge"
+  replicas: 2
+  autoscaling:
+    min_replicas: 2
+    max_replicas: 10
+    target_cpu: 70
+    target_latency_ms: 100

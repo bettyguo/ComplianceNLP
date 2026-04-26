@@ -1,0 +1,39 @@
+# Multi-task obligation extraction training configuration
+model:
+  backbone: "nlpaueb/legal-bert-base-uncased"
+  num_entity_types: 23
+  deontic_classes: 4
+  max_seq_length: 512
+  dropout: 0.1
+  crf_enabled: true
+
+loss_weights:
+  lambda_ner: 0.4
+  lambda_deontic: 0.3
+  lambda_xref: 0.3
+
+training:
+  optimizer: "adamw"
+  learning_rate: 1.0e-4
+  weight_decay: 0.01
+  warmup_steps: 1000
+  scheduler: "cosine_with_warmup"
+  epochs: 10
+  batch_size: 32
+  max_grad_norm: 1.0
+  fp16: true
+  seed: 42
+
+data:
+  train_file: "data/regobligation/train.json"
+  val_file: "data/regobligation/val.json"
+  test_file: "data/regobligation/test.json"
+  # 8,742 annotated sentences: SEC (3,211), MiFID II (2,987), Basel III (2,544)
+  # Annotated by 3 compliance experts (κ=0.84)
+  augmentation:
+    obliqa: true
+    coling2025: true
+
+evaluation:
+  seeds: [42, 123, 456]
+  bootstrap_n: 10000

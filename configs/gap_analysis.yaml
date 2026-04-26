@@ -1,0 +1,32 @@
+# Compliance gap analysis configuration
+model:
+  generator: "meta-llama/Meta-Llama-3-8B-Instruct"
+  max_generation_length: 512
+  temperature: 0.1
+  num_beams: 1
+
+thresholds:
+  delta_eval: 0.6
+  delta_deploy: 0.45
+  grounding_threshold: 0.85
+
+grounding:
+  model: "lytang/MiniCheck-DeBERTa-v3-large"
+  mandatory_review_severity: ["Critical", "Major"]
+  mandatory_review_xref_count: 3
+
+retrieval:
+  alpha: 0.7  # Dense/sparse weight
+  beta: 0.3   # KG re-ranking weight
+  top_k: 5
+  dense_model: "all-MiniLM-L6-v2"
+
+knowledge_graph:
+  neo4j_uri: "bolt://localhost:7687"
+  max_hops: 3
+
+evaluation:
+  gapbench_path: "data/gapbench/gapbench_test.json"
+  obliqa_path: "data/obliqa/"
+  seeds: [42, 123, 456]
+  bootstrap_n: 10000

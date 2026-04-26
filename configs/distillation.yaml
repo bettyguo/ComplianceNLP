@@ -1,0 +1,29 @@
+# Knowledge distillation configuration (70B → 8B)
+teacher:
+  model: "meta-llama/Meta-Llama-3-70B-Instruct"
+  dtype: "float16"
+
+student:
+  model: "meta-llama/Meta-Llama-3-8B-Instruct"
+  dtype: "float16"
+
+distillation:
+  gamma: 0.5  # KD/SFT balance weight
+  temperature: 2.0
+  num_training_samples: 15000
+  max_length: 1024
+
+training:
+  learning_rate: 1.0e-5
+  epochs: 3
+  batch_size: 4
+  gradient_accumulation_steps: 8
+  warmup_ratio: 0.1
+  fp16: true
+  seed: 42
+
+compute:
+  gpus: 2
+  gpu_type: "A100-80GB"
+  estimated_hours: 80
+  estimated_cost: "$420"

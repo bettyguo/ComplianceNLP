@@ -1,0 +1,105 @@
+# ═══════════════════════════════════════════════════════════════════
+# Kubernetes Deployment for ComplianceNLP Production Serving
+# ═══════════════════════════════════════════════════════════════════
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compliancenlp-serving
+  labels:
+    app: compliancenlp
+    component: serving
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: compliancenlp
+  template:
+    metadata:
+      labels:
+        app: compliancenlp
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: model-server
+          image: compliancenlp:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "32Gi"
+              cpu: "4"
+              nvidia.com/gpu: "1"
+            limits:
+              memory: "64Gi"
+              cpu: "8"
+              nvidia.com/gpu: "1"
+          env:
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          volumeMounts:
+            - name: model-cache
+              mountPath: /root/.cache
+      volumes:
+        - name: model-cache
+          emptyDir:
+            sizeLimit: 50Gi
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compliancenlp-serving
+spec:
+  selector:
+    app: compliancenlp
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: compliancenlp-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: compliancenlp-serving
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          name: compliancenlp_latency_seconds
+        target:
+          type: AverageValue
+          averageValue: "100m"

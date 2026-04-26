@@ -1,0 +1,30 @@
+{
+  "report_id": "RPT-20260115120000",
+  "regulatory_document": "MiFID II Article 25(2)",
+  "framework": "MiFID II",
+  "total_obligations": 1,
+  "findings": [
+    {
+      "obligation_entity": "Investment firm",
+      "obligation_action": "Obtain information regarding client knowledge, experience, financial situation, and investment objectives",
+      "obligation_modality": "Obligation",
+      "source_provision": "MiFID II Art. 25(2)",
+      "cross_references": [
+        "Delegated Regulation (EU) 2017/565 Art. 54-56",
+        "Art. 25(3)"
+      ],
+      "matched_policy_section": "§4.3 Client Onboarding",
+      "alignment_score": 0.52,
+      "classification": "Partial Gap",
+      "severity": "Major",
+      "gap_description": "Current policy requires collection of client financial situation and investment objectives at onboarding but does not mandate reassessment of knowledge and experience at each advisory interaction.",
+      "recommended_action": "Update §4.3 to include periodic suitability reassessment per Delegated Regulation Art. 54.",
+      "grounding_confidence": 0.94,
+      "requires_human_review": true
+    }
+  ],
+  "compliant_count": 0,
+  "partial_gap_count": 1,
+  "full_gap_count": 0,
+  "critical_count": 0
+}

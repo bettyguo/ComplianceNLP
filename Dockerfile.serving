@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════════
+# Production Serving Dockerfile
+# Optimized for low latency and small image size
+# ═══════════════════════════════════════════════════════════════════
+
+# Build stage
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements-serving.txt .
+RUN pip install --no-cache-dir --target=/install -r requirements-serving.txt
+
+COPY src/ /build/src/
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir --target=/install .
+
+# Production stage
+FROM nvidia/cuda:12.1-runtime-ubuntu22.04 AS production
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PORT=8080
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3.11 /usr/bin/python
+
+COPY --from=builder /install /usr/local/lib/python3.11/site-packages/
+
+COPY src/compliance_nlp/ /app/compliance_nlp/
+
+RUN useradd --create-home appuser
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
+
+EXPOSE 8080
+
+CMD ["python", "-m", "uvicorn", "compliance_nlp.serving.server:app", "--host", "0.0.0.0", "--port", "8080"]
